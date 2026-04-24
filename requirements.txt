@@ -13,3 +13,5 @@ bs4==0.0.2
 pypdf==6.10.0
 chromadb==1.5.7
 faiss-cpu==1.13.2
+Wikipedia==1.4.0
+arxiv==3.0.0
