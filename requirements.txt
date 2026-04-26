@@ -15,3 +15,7 @@ chromadb==1.5.7
 faiss-cpu==1.13.2
 Wikipedia==1.4.0
 arxiv==3.0.0
+langsmith==0.7.30
+groq==0.37.1
+langchain-groq==1.1.2
+beautifulsoup4==4.14.3
