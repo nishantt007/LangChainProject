@@ -15,7 +15,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-## loading the Groq API key
+## Groq API key
 groq_api_key = os.getenv("GROQ_API_KEY")
 if groq_api_key is None:
     raise ValueError("GROQ_API_KEY is not set")
