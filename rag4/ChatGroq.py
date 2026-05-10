@@ -21,6 +21,10 @@ if groq_api_key is None:
     raise ValueError("GROQ_API_KEY is not set")
 os.environ["GROQ_API_KEY"] = groq_api_key
 
+## Streamlit UI with LLM
+st.title("RAG with ChatGroq using Llama 3.1")
+llm=ChatGroq(groq_api_key=groq_api_key, model_name="llama-3.1-8b-instant")           # initializing the ChatGroq LLM with the Groq API key and the model
+
 ## initializing the vector store and document loader in the Streamlit session state to avoid reloading and reprocessing the documents on every interaction, thus ensuring that the embeddings and the vector store are created only once
 ## Session State - in Streamlit, every time we interact with the app (click a button, type in a box, slide a slider), the entire script runs again from top to bottom. Thus every variable we created is wiped clean and reset to its starting value. Session State acts as a persistent storage container that allows the app to remember data across those re-runs
 if "vector" not in st.session_state:    # checking if the "vector" key is not already in the session state, which indicates that the vector store and related components have not been initialized yet. This ensures that the initialization code runs only once when the app is first loaded, rather than on every interaction
@@ -31,12 +35,6 @@ if "vector" not in st.session_state:    # checking if the "vector" key is not al
     st.session_state.text_splitter=RecursiveCharacterTextSplitter(chunk_size=1000,chunk_overlap=200)    
     st.session_state.final_documents=st.session_state.text_splitter.split_documents(st.session_state.docs[:40]) # selecting the first 40 documents for processing with the text splitter - depends on the number of tokens in the documents. If the documents are too long, it may exceed the token limit of the LLM, so we can select a subset of the documents to ensure that we stay within the token limits
     st.session_state.vectors=FAISS.from_documents(st.session_state.final_documents,st.session_state.embeddings)
-
-
-## Streamlit UI with LLM
-st.title("RAG with ChatGroq using Llama 3.1")
-llm=ChatGroq(groq_api_key=groq_api_key, model_name="llama-3.1-8b-instant")           # initializing the ChatGroq LLM with the Groq API key and the model
-
 
 ## creating a prompt template for the LLM, which includes the retrieved context and the user's question
 prompt=ChatPromptTemplate.from_template(
@@ -51,17 +49,17 @@ Questions:{input}
 """
 )
 
+prompt=st.text_input("Input your query related to LangSmith documentation")  # creating a text input box in the Streamlit app where users can enter their questions or prompts
+
 ## document chain & retrieval chain (outside the if prompt block because we want to create the chains only once and reuse them for every user query, rather than creating new chains every time a user submits a query. This avoids unnecessary reinitialization of the chains on every interaction)
 document_chain = create_stuff_documents_chain(llm, prompt)              # creating a document chain that combines the LLM and the prompt template (doc chain = llm + prompt template)
 retriever = st.session_state.vectors.as_retriever()                     # creating a retriever from the FAISS vector store, which will be used to retrieve relevant documents based on user queries
 retrieval_chain = create_retrieval_chain(retriever, document_chain)     # creating a retrieval chain that combines the retriever and the document chain, allowing us to retrieve relevant documents and generate a response in a single step (retrieval chain = retriever + doc chain)
 
-prompt=st.text_input("Input you query related to LangSmith documentation")  # creating a text input box in the Streamlit app where users can enter their questions or prompts
-
 if prompt:
     start=time.process_time()                                           # starting a timer to measure the response time of the retrieval and generation process
     response=retrieval_chain.invoke({"input":prompt})                   # invoking the retrieval chain with the user's input prompt. This will trigger the process of retrieving relevant documents from the FAISS vector store based on the user's query and then generating a response using the LLM based on the retrieved context
-    print("Response time :",time.process_time()-start)                  
+    st.write(f"Response time: {time.process_time()-start:.2f} seconds")                  
     st.write(response['answer'])                                        # displaying the generated response from the LLM in the Streamlit app. The response is extracted from the 'answer' key of the response dictionary returned by the retrieval chain
 
     ## streamlit expander - making the loop go through every document in the retrieved context and display its content in the Streamlit app
