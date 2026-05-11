@@ -21,3 +21,4 @@ langchain-groq==1.1.2
 beautifulsoup4==4.14.3
 sentence-transformers==5.4.1
 langchain-huggingface==1.2.2
+langchain-objectbox==0.1.0
