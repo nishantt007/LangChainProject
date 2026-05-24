@@ -22,3 +22,6 @@ beautifulsoup4==4.14.3
 sentence-transformers==5.4.1
 langchain-huggingface==1.2.2
 langchain-objectbox==0.1.0
+PyPDF2==3.0.1
+langchain_google_genai==4.2.3
+google-cloud-aiplatform>=1.38.0
