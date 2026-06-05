@@ -1,3 +1,7 @@
 .vscode/
 venv/
+concept_imgs/
 .env
+logs.md
+notes.txt
+langchain_HF_basic/
